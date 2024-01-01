@@ -23,26 +23,3 @@ def save_outputs(metadata, **kwargs):
         np.save(run_folder + '/' + key + '.npy', value)
 
     return run_folder
-
-"""
-key_info = {
-    'target': 'phi1',
-    'algorithm': 'pCN',
-    'dimension': 20
-}
-
-meta_data = {
-    'runtime': 30.345,
-    'number of samples': 1000,
-    'ESS': 201,
-    'empirical alpha': 0.23,
-    'target': 'phi1',
-    'algorithm': 'pCN',
-    'step size': 0.5,
-    'initial_cov': 'identity',
-    'dimension': 20
-}
-
-samples = np.array([13.3453,24.2124,1.2442,0.1,3,17])
-
-save_outputs(meta_data, samples)"""

@@ -1,5 +1,4 @@
 import numpy as np
-from functools import partial
 
 # Note phi functions correspond to potential.
 # So, up to proportionality,
@@ -14,7 +13,7 @@ def phi_one(x):
     return 2
 
 def phi_two(x):
-    alpha = 1
+    alpha = 2
     y = x[0] + x[1]
     num = (y ** 2 - alpha) ** 2
     y = x[2]
@@ -28,13 +27,11 @@ def phi_three(x):
 
 def get_normal_log_density(x, mean, cov):
     diff = x - mean
-    exponent = diff.T @ np.linalg.solve(cov, diff)
+    exponent = diff.T @ np.linalg.solve(cov, diff) / 2
     return (- exponent)
 
 def standard_normal_log_density(dim):
-    cov = np.identity(dim)
-    mean = np.zeros(dim)
-    return partial(get_normal_log_density, mean = mean, cov = cov)
+    return lambda x: np.linalg.norm(x) / 2
 
 potentials = {
     'phi1': phi_one,

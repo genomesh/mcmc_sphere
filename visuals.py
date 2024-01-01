@@ -1,7 +1,6 @@
 from algorithms import *
 import seaborn as sns
 import pandas as pd
-from functools import partial
 import matplotlib.pyplot as plt
 import json
 import numpy as np
@@ -59,6 +58,3 @@ def mcmc_plots(directory):
     g.map_diag(sns.kdeplot, lw=2)
     plt.show()
 
-#test_pCN(phi = phi_two)
-
-#basic_plots('./output/rw_phi1_id_dim3/run2')
