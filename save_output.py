@@ -8,11 +8,8 @@ def save_outputs(metadata, **kwargs):
 
     Path("./output/" + folder_name).mkdir(parents=True, exist_ok=True)
     i = 1
-    while (Path("./output/" + folder_name + '/run' + str(i)).exists()):
+    while Path("./output/" + folder_name + '/run' + str(i)).exists() and i < 100:
         i += 1
-        if i > 100:
-            print('i over 100')
-            break
     run_folder = "./output/" + folder_name + '/run' + str(i)
     Path(run_folder).mkdir(parents=True, exist_ok=True)
 
