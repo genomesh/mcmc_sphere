@@ -58,6 +58,6 @@ def beta_mix_analysis(folder):
 
 
 #folder = "./output/rw_beta_mix_inv_lap_dim4/run6"
-folder = compute_beta_mcmc(pCN, 9, 5000)
+folder = compute_beta_mcmc(tuned_pCN, 9, 5000)
 print(folder)
 beta_mix_analysis(folder)
