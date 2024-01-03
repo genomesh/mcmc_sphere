@@ -196,7 +196,7 @@ def pCN(num_samples, dim, potential, prior_cov, s = 0.5):
         'step_size': s
     }
 
-    run_folder = save_outputs(meta_data, samples = samples, jump_sizes = jump_sizes, accept_probs = accept_probs, step_sizes = step_sizes)
+    run_folder = save_outputs(meta_data, samples = samples, jump_sizes = jump_sizes, accept_probs = accept_probs)
 
     return run_folder
 
