@@ -16,11 +16,11 @@ def basic_plots(directory):
     
     samples = np.load(directory + '/samples.npy')
     accept_probs = np.load(directory + '/accept_probs.npy')
-    jump_sizes = np.load(directory + '/jump_sizes.npy')
+    #jump_sizes = np.load(directory + '/jump_sizes.npy')
 
     x = samples[:, 0]
     y = samples[:, 1]
-    z = samples[:, 2]
+    #z = samples[:, 2]
 
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
     ax1.plot(x, y, 'x')

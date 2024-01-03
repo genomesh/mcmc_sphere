@@ -1,4 +1,5 @@
 import numpy as np
+from beta import beta_mixture_potential
 
 # Note phi functions correspond to potential.
 # So, up to proportionality,
@@ -36,12 +37,18 @@ def standard_normal_log_density(dim):
 potentials = {
     'phi1': phi_one,
     'phi2': phi_two,
-    'phi3': phi_three
+    'phi3': phi_three,
+    'beta_mix': beta_mixture_potential
 }
 
 prior_covs = {
     'id': lambda dim: np.eye(dim),
-    'inv_lap': lambda dim: np.eye(dim) # to implement
+    'inv_lap': lambda dy: np.diag([1/((n+1)**2) for n in range(dy)])
+}
+
+prior_cov_cholesky = {
+    'id': lambda dim: np.eye(dim),
+    'inv_lap': lambda dy: np.diag([1/(n+1) for n in range(dy)])
 }
 
 def get_log_target(potential, prior_cov, dim):

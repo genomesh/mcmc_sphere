@@ -1,7 +1,7 @@
 import numpy as np
 from math import pi
 from save_output import save_outputs
-from targets import get_log_target, potentials, prior_covs
+from targets import get_log_target, potentials, prior_cov_cholesky
 import time
 
 
@@ -9,10 +9,9 @@ def rw_mcmc(num_samples, dim, potential, prior_cov, s = 1):
 
     start_time = time.time()
 
-    prop_cov = np.eye(dim)
-    prop_cholesky = np.linalg.cholesky(prop_cov)
+    prop_cholesky = prior_cov_cholesky[prior_cov](dim)
 
-    log_target_density = get_log_target(potential,  prior_cov, dim)
+    log_target_density = get_log_target(potential, prior_cov, dim)
 
     print_interval = int(max(num_samples / 100, 100))
 
@@ -46,7 +45,7 @@ def rw_mcmc(num_samples, dim, potential, prior_cov, s = 1):
         if i % print_interval == 0:
             emp_accept_prob = np.mean(accept_probs[i+1-print_interval:i])
             emp_jump_size = np.mean(jump_sizes[i+1-print_interval:i])
-            print(f"Sample {i}, acceptance rate: {emp_accept_prob:.2f}, log jump size: {np.log(emp_jump_size):.2f}")
+            print(f"Sample {i}, accept rate: {emp_accept_prob:.2f}, log jumps: {np.log(emp_jump_size):.2f}, current log density: {cur_log_density:.2f}")
 
     meta_data = {
         'runtime (secs)': round(time.time() - start_time, 2), # to add.
@@ -69,8 +68,7 @@ def rw_mcmc_tuning(num_samples, dim, potential, prior_cov):
 
     start_time = time.time()
 
-    prop_cov = np.eye(dim)
-    prop_cholesky = np.linalg.cholesky(prop_cov)
+    prop_cholesky = prior_cov_cholesky[prior_cov](dim)
 
     log_target_density = get_log_target(potential,  prior_cov, dim)
 
@@ -110,8 +108,9 @@ def rw_mcmc_tuning(num_samples, dim, potential, prior_cov):
         samples[i] = cur
 
         if i % print_interval == 0:
-            emp_accept_prob = np.mean(accept_probs[i-500:i])
-            print(f"Sample {i}, acceptance rate: {emp_accept_prob:.2f}, log step size: {np.log(step_size):.2f}")
+            emp_accept_prob = np.mean(accept_probs[i+1-print_interval:i])
+            emp_jump_size = np.mean(jump_sizes[i+1-print_interval:i])
+            print(f"Sample {i}, accept rate: {emp_accept_prob:.2f}, log jumps: {np.log(emp_jump_size):.2f}, current log density: {cur_log_density:.2f}")
             if i < final_tune:
                 if emp_accept_prob > 0.5:
                     print('big tune step size up')
@@ -153,20 +152,20 @@ def pCN(num_samples, dim, potential, prior_cov, s = 0.5):
 
     phi = potentials[potential]
 
-    cov = prior_covs[prior_cov](dim)
-    cov_cholesky = np.linalg.cholesky(cov)
-
-    cur = np.full(dim, 3)
+    cov_cholesky = prior_cov_cholesky[prior_cov](dim)
 
     generator = np.random.default_rng()
 
     samples = np.zeros((num_samples, dim))
-    samples[0] = cur
-    cur_phi = phi(cur)
-
     accept_probs = np.zeros(num_samples)
     step_sizes = np.zeros(num_samples)
     jump_sizes = np.zeros(num_samples)
+
+    cur = np.full(dim, 10)
+    samples[0] = cur
+    cur_phi = phi(cur)
+
+    print_interval = int(max(num_samples / 100, 100))
 
     for i in range(1, num_samples):
         w_k = generator.standard_normal(size = dim)
@@ -186,12 +185,13 @@ def pCN(num_samples, dim, potential, prior_cov, s = 0.5):
 
         samples[i] = cur
     
-        if i % 500 == 0:
-            emp_accept_prob = np.mean(accept_probs[i-500:i])
-            print(f"Sample {i}, acceptance rate: {emp_accept_prob:.2f}")
+        if i % print_interval == 0:
+            emp_accept_prob = np.mean(accept_probs[i+1-print_interval:i])
+            emp_jump_size = np.mean(jump_sizes[i+1-print_interval:i])
+            print(f"Sample {i}, accept rate: {emp_accept_prob:.2f}, log jumps: {np.log(emp_jump_size):.2f}, current potential: {cur_phi:.2f}")
 
     meta_data = {
-        'runtime (secs)': round(time.time() - start_time, 2), # to add.
+        'runtime (secs)': round(time.time() - start_time, 2),
         'number of samples': num_samples,
         'empirical alpha': np.mean(accept_probs),
         'potential': potential,
