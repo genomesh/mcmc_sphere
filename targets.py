@@ -1,5 +1,6 @@
 import numpy as np
 from beta import beta_mixture_potential
+from potentials import coal_potential, generate_beta_sphere_potential
 
 # Note phi functions correspond to potential.
 # So, up to proportionality,
@@ -38,17 +39,23 @@ potentials = {
     'phi1': phi_one,
     'phi2': phi_two,
     'phi3': phi_three,
-    'beta_mix': beta_mixture_potential
+    'beta_mix': beta_mixture_potential,
+    'coal': coal_potential,
+    'beta3': generate_beta_sphere_potential(3),
+    'beta10': generate_beta_sphere_potential(10),
+    'beta50': generate_beta_sphere_potential(50)
 }
 
 prior_covs = {
     'id': lambda dim: np.eye(dim),
-    'inv_lap': lambda dy: np.diag([1/((n+1)**2) for n in range(dy)])
+    'inv_lap': lambda dy: np.diag([1/((n+1)**2) for n in range(dy)]),
+    'matern': lambda dy: np.diag([0.25 / (0.1 + (np.pi * i) ** 2) for i in range(dy)])
 }
 
 prior_cov_cholesky = {
     'id': lambda dim: np.eye(dim),
-    'inv_lap': lambda dy: np.diag([1/(n+1) for n in range(dy)])
+    'inv_lap': lambda dy: np.diag([1/(n+1) for n in range(dy)]),
+    'matern': lambda dy: np.diag([0.5 / np.sqrt(0.1 + (np.pi * i) ** 2) for i in range(dy)])
 }
 
 def get_log_target(potential, prior_cov, dim):

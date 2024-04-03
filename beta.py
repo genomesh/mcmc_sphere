@@ -13,7 +13,7 @@ def integrand(x, *xis):
     return np.exp(u(x, xis))    
 
 def beta_mixture_potential(xis):
-    dy = 1000
+    dy = 20
     I = quad(integrand, 0, 1, args = tuple(xis))[0]
     #print(f'value of integral: {I}')
     pot = dy * np.log(I)

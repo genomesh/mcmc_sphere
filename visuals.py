@@ -33,18 +33,18 @@ def basic_plots(directory):
     #ax3.set_title('Jump Sizes')
     counts, bins = np.histogram(x)
     ax3.stairs(counts, bins)
-    ax3.set_title('Third coordinate histogram')
+    ax3.set_title('First coordinate histogram')
     ax4.plot(x)
-    ax4.set_title('Third coordinate trace')
+    ax4.set_title('First coordinate trace')
     plt.show()
 
 def mcmc_plots(directory):
     with open(directory + '/metadata.json', 'r') as j:
         metadata = json.loads(j.read())
     
-    samples = np.load(directory + '/samples.npy')
-    accept_probs = np.load(directory + '/accept_probs.npy')
-    jump_sizes = np.load(directory + '/jump_sizes.npy')
+    samples = np.load(directory + '/samples.npy')[10000:]
+    accept_probs = np.load(directory + '/accept_probs.npy')[10000:]
+    jump_sizes = np.load(directory + '/jump_sizes.npy')[10000:]
 
     if metadata['dimension'] < 4:
         return False
@@ -58,3 +58,30 @@ def mcmc_plots(directory):
     g.map_diag(sns.kdeplot, lw=2)
     plt.show()
 
+def trace_plots(directory):
+
+    #output = rw_mcmc(num_samples, dim, log_target_density, tuning_flag)
+    #need to replace with reading file, json and npy
+
+    with open(directory + '/metadata.json', 'r') as j:
+        metadata = json.loads(j.read())
+    
+    samples = np.load(directory + '/samples.npy')[:2000]
+    accept_probs = np.load(directory + '/accept_probs.npy')
+    #jump_sizes = np.load(directory + '/jump_sizes.npy')
+
+    x = samples[:, 0]
+    y = samples[:, 1]
+
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
+    ax1.scatter(x, y, marker = 'x', c = np.linspace(0,1,2000), cmap = 'plasma')
+    ax1.set_title('First and second coordinates')
+    ax1.axis('equal')
+    ax2.plot(x)
+    ax2.set_title('First coordinate trace')
+    ax3.plot(y)
+    ax3.set_title('Second coordinate trace')
+    plt.show()
+
+folder = './output/rw_beta10_inv_lap_dim5/run1'
+trace_plots(folder)

@@ -109,8 +109,9 @@ def plot_beta_mixture():
     plt.show()
 
 
-#folder = compute_beta_mcmc(tuned_pCN, 20, 5000)
+#folder = compute_beta_mcmc(tuned_pCN, 100, 5000)
 
-folder = "./output/tuned_pCN_beta_mix_inv_lap_dim20/run1"
-print(folder)
-beta_mix_analysis(folder)
+#folder = "./output/tuned_pCN_beta_mix_inv_lap_dim20/run1"
+#print(folder)
+#beta_mix_analysis(folder)
+plot_beta_mixture()

@@ -1,36 +1,71 @@
 from statsmodels.graphics.tsaplots import plot_pacf, plot_acf
 import numpy as np
-from matplotlib import pyplot
+import matplotlib.pyplot as plt
+import emcee
+import json
+
 
 # Could save ESS and lag 1 autocorrelation in metadata, but haven't done yet.
 
-def get_ess(folder, plot_bool = False):
+def get_ess(seq, plot_bool = False):
 
-    samples = np.load(folder + '/samples.npy')
-
-    # just considering first coordinate.
-    series = samples[:,1]
-
-    rho = np.corrcoef([series[:-1], series[1:]])[0,1]
+    rho = np.corrcoef([seq[:-1], seq[1:]])[0,1]
 
     print(f'autocorrelation: {rho}\n')
 
-    ess = (1 - rho) / (1 + rho) * len(samples)
+    ess = (1 - rho) / (1 + rho) * len(seq)
 
     print(f'Effective Sample Size: {ess:.2f}\n')
 
     if plot_bool:
 
-        plot_acf(series)
-        plot_pacf(series)
-        pyplot.show()
+        plot_acf(seq)
+        plot_pacf(seq)
+        plt.show()
 
-    return ess
+    return [rho, ess]
 
-test_folders = [
-    './output/tuned_rw_phi2_id_dim3/run1',
-    './output/rw_phi2_id_dim500/run2',
-    './output/pCN_phi2_id_dim4/run1'
-]
 
-get_ess(test_folders[2])
+# old function
+#def plot_iact(folders):
+
+    fig, ax = plt.subplots()
+
+    for i in range(len(folders)):
+
+        folder = './output/' + folders[i]
+        print(folder)
+
+        samples = get_prob_samples(folder)
+
+        get_ess(samples, plot_bool=False)[1]
+
+        iact = emcee.autocorr.integrated_time(samples)
+
+        print(iact)
+
+        ax.plot([10,20,30,40,50][i], iact, 'r_', markersize = 4)
+
+    ax.set(xlabel='dimension', ylabel='IACT',
+        title= 'Integrated Autocorrelation time (IACT) vs dimension')
+    ax.grid()
+
+    #fig.savefig("u_plot.png")
+    plt.show()
+
+def update_correlation(folder, samples):
+
+    rho, ess = get_ess(samples)
+    iact = emcee.autocorr.integrated_time(samples)[0]
+
+    with open(folder + '/metadata.json', 'r+') as f:
+        data = json.load(f)
+        data['ess'] = ess
+        data['autocorrelation'] = rho
+        data['iact'] = iact
+        data['mc_estimate'] = np.mean(samples)
+
+        f.seek(0)        # <--- should reset file position to the beginning.
+        json.dump(data, f, indent=4)
+        f.truncate()     # remove remaining part
+    return True
